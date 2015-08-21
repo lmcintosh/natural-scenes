@@ -49,8 +49,6 @@ class NaturalScenesStimulus(object):
         xstart = self.stimulus[index, 1].astype('int')
         ystart = self.stimulus[index, 2].astype('int')
         # Need to check if index is integer or iterable
-        #import pdb
-        #pdb.set_trace()
         try:
             # assume index is a slice
             imgs = [rescale(self.images[img_idx]) for img_idx in img_index]
