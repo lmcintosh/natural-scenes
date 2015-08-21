@@ -16,7 +16,8 @@ class NaturalScenesStimulus(object):
     INITIALIZE NaturalScenesStimuli with the following arguments: 
     images:     Array of images with shape (num_images, height, width)
     stimulus:   Array of shape (num_frames, 3) where the three dimensions refer
-                to (image_index, xstart, ystart).
+                to (image_index, xstart, ystart). Image_index should be in
+                python format (0,N-1) and NOT matlab format (1,N).
 
     Then this class allows you to call stimulus frames as if it's a numpy array.
 
@@ -52,10 +53,10 @@ class NaturalScenesStimulus(object):
         #pdb.set_trace()
         try:
             # assume index is a slice
-            imgs = [rescale(self.images[img_idx-1]) for img_idx in img_index]
+            imgs = [rescale(self.images[img_idx]) for img_idx in img_index]
             return np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
         except:
             # otherwise index is an integer
-            img = rescale(self.images[img_index-1])
+            img = rescale(self.images[img_index])
             return img[ystart:ystart+self.ndims, xstart:xstart+self.ndims]
 
