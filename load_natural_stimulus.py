@@ -2,12 +2,6 @@ from __future__ import division
 import numpy as np
 import collections
 
-def rescale(x):    
-    # note that if python3 division isn't being used, integers will be truncated
-    xmin = np.min(x)
-    xmax = np.max(x)
-    return (x - xmin) / (xmax - xmin)
-
 def rolling_window(array, window):
     """
     Make an ndarray with a rolling window of the last dimension
@@ -87,11 +81,11 @@ class NaturalScenesStimulus(object):
             assert xstart.dtype is np.dtype('int32'), 'xstart is %s' %(xstart.dtype)
             assert ystart.dtype is np.dtype('int32'), 'ystart is %s' %(ystart.dtype)
             # assume index is a slice
-            imgs = [rescale(self.images[img_idx]) for img_idx in img_index]
+            imgs = self.images[img_index]
             return np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
         else:
             # otherwise index is an integer
-            img = rescale(self.images[img_index])
+            img = self.images[img_index]
             return img[ystart:ystart+self.ndims, xstart:xstart+self.ndims]
 
 class NaturalDataset(object):
