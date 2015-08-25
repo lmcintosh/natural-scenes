@@ -1,5 +1,6 @@
 from __future__ import division
 import numpy as np
+import collections
 
 def rescale(x):    
     # note that if python3 division isn't being used, integers will be truncated
@@ -77,15 +78,18 @@ class NaturalScenesStimulus(object):
         '''
         Returns np array of shape (index.shape[0], self.ndims, self.ndims)
         '''
-        img_index = self.stimulus[index, 0].astype('int')
-        xstart = self.stimulus[index, 1].astype('int')
-        ystart = self.stimulus[index, 2].astype('int')
+        img_index = self.stimulus[index, 0]
+        xstart = self.stimulus[index, 1]
+        ystart = self.stimulus[index, 2]
         # Need to check if index is integer or iterable
-        try:
+        if isinstance(img_index, np.ndarray):
+            assert img_index.dtype is np.dtype('int32')
+            assert xstart.dtype is np.dtype('int32')
+            assert ystart.dtype is np.dtype('int32')
             # assume index is a slice
             imgs = [rescale(self.images[img_idx]) for img_idx in img_index]
             return np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
-        except:
+        else:
             # otherwise index is an integer
             img = rescale(self.images[img_index])
             return img[ystart:ystart+self.ndims, xstart:xstart+self.ndims]
@@ -125,6 +129,19 @@ class NaturalDataset(object):
         '''
         Returns np array of shape (index.shape[0], self.ndims, self.ndims)
         '''
+        import pdb
+        pdb.set_trace()
+        indices = np.arange(self.shape[0])[index]
+
+        # case where you want a single example
+        if ~isinstance(indices, np.ndarray):
+            indices = np.array(indices)
+
+        X = np.zeros((indices.shape[0],) + self.shape[1:])
+        for i in indices:
+            imgs = 0
+
+        index = np.append(index, np.ones((self.duration-1,)))
         img_index = self.stimulus[index, 0].astype('int')
         xstart = self.stimulus[index, 1].astype('int')
         ystart = self.stimulus[index, 2].astype('int')
