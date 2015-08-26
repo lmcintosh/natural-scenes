@@ -129,8 +129,6 @@ class NaturalDatasetStimulus(object):
 
         X = np.zeros((indices.shape[0],) + self.shape[1:])
         for idi,i in enumerate(indices):
-            #import pdb
-            #pdb.set_trace()
             ex_indices = np.arange(i,i+self.duration)
             X[idi] = self.frames[ex_indices]
             #X.append(self.frames[ex_indices])
@@ -143,14 +141,16 @@ class NaturalDatasetSpikes(object):
     '''
     def __init__(self, spikes, duration):
         '''
-        Spikes is ndarray of shape (ncells, nbins)
+        Spikes is ndarray of shape (nbins, ncells)
 
         Duration is length of filter in frames. Should be same
         as NaturalDatasetStimulus.duration.
         '''
-        self.ncells = spikes.shape[0]
+        self.ncells = spikes.shape[1]
         self.duration = duration
-        self.spikes = spikes[:,duration-1:]
+        self.spikes = spikes[duration-1:]
+        self.shape = self.spikes.shape
+
 
     def __getitem__(self, index):
         '''
