@@ -77,9 +77,9 @@ class NaturalScenesStimulus(object):
         ystart = self.stimulus[index, 2]
         # Need to check if index is integer or iterable
         if isinstance(img_index, np.ndarray):
-            assert img_index.dtype is np.dtype('int32'), 'img_index is %s' %(img_index.dtype)
-            assert xstart.dtype is np.dtype('int32'), 'xstart is %s' %(xstart.dtype)
-            assert ystart.dtype is np.dtype('int32'), 'ystart is %s' %(ystart.dtype)
+            assert img_index.dtype is np.dtype('int16'), 'img_index is %s' %(img_index.dtype)
+            assert xstart.dtype is np.dtype('int16'), 'xstart is %s' %(xstart.dtype)
+            assert ystart.dtype is np.dtype('int16'), 'ystart is %s' %(ystart.dtype)
             # assume index is a slice
             imgs = self.images[img_index]
             return np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
