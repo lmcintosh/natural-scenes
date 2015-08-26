@@ -124,15 +124,18 @@ class NaturalDatasetStimulus(object):
         indices = np.arange(self.shape[0])[index]
 
         # case where you want a single example
-        if ~isinstance(indices, np.ndarray):
+        if not isinstance(indices, np.ndarray):
             indices = np.array([indices])
 
         X = np.zeros((indices.shape[0],) + self.shape[1:])
-        for i in indices:
+        for idi,i in enumerate(indices):
+            #import pdb
+            #pdb.set_trace()
             ex_indices = np.arange(i,i+self.duration)
-            X[i] = self.frames[ex_indices]
+            X[idi] = self.frames[ex_indices]
+            #X.append(self.frames[ex_indices])
             
-            return X
+        return np.array(X)
 
 class NaturalDatasetSpikes(object):
     '''
