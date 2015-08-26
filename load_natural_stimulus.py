@@ -81,14 +81,14 @@ class NaturalScenesStimulus(object):
             assert xstart.dtype is np.dtype('int16'), 'xstart is %s' %(xstart.dtype)
             assert ystart.dtype is np.dtype('int16'), 'ystart is %s' %(ystart.dtype)
             # assume index is a slice
-            imgs = self.images[img_index]
+            imgs = [self.images[img_idx] for img_idx in img_index]
             return np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
         else:
             # otherwise index is an integer
             img = self.images[img_index]
             return img[ystart:ystart+self.ndims, xstart:xstart+self.ndims]
 
-class NaturalDataset(object):
+class NaturalDatasetStimulus(object):
     '''
     Take the compressed natural scenes data and return the appropriate examples,
     after Toeplitz matrix reordering.
@@ -107,50 +107,53 @@ class NaturalDataset(object):
     Then this class allows you to call stimulus frames as if it's a numpy array.
     '''
 
-    def __init__(self, images, stimulus, duration):
+    def __init__(self, frames, duration):
         '''
-        Images should be (num_images, height, width).
-        Stimulus should be (num_frames, 3) where the three
-        dimensions refer to image index, xstart, ystart.
+        Frames is a NaturalScenesStimulus() object.
+
+        Duration is length of filter in frames.
         '''
-        self.images = images
-        self.stimulus = stimulus
-        self.ndims = 500
         self.duration = duration
-        self.shape = (stimulus.shape[0], self.duration, self.ndims, self.ndims)
+        self.frames = frames
+        self.shape = (frames.shape[0]-duration+1, self.duration, frames.shape[1], frames.shape[2])
 
     def __getitem__(self, index):
         '''
         Returns np array of shape (index.shape[0], self.ndims, self.ndims)
         '''
-        import pdb
-        pdb.set_trace()
         indices = np.arange(self.shape[0])[index]
 
         # case where you want a single example
         if ~isinstance(indices, np.ndarray):
-            indices = np.array(indices)
+            indices = np.array([indices])
 
         X = np.zeros((indices.shape[0],) + self.shape[1:])
         for i in indices:
-            imgs = 0
-
-        index = np.append(index, np.ones((self.duration-1,)))
-        img_index = self.stimulus[index, 0].astype('int')
-        xstart = self.stimulus[index, 1].astype('int')
-        ystart = self.stimulus[index, 2].astype('int')
-        # Need to check if index is integer or iterable
-        try:
-            # assume index is a slice
-            imgs = [rescale(self.images[img_idx]) for img_idx in img_index]
-            frames = np.array([2*img[y:y+self.ndims, x:x+self.ndims] for x,y,img in zip(xstart,ystart,imgs)])
-            X = rolling_window(frames, self.duration)
-            X = np.rollaxis(X, 2)
-            X = np.rollaxis(X, 3, 1)
+            ex_indices = np.arange(i,i+self.duration)
+            X[i] = self.frames[ex_indices]
+            
             return X
 
-        except:
-            # otherwise index is an integer
-            img = rescale(self.images[img_index])
-            return img[ystart:ystart+self.ndims, xstart:xstart+self.ndims]
+class NaturalDatasetSpikes(object):
+    '''
+    Return the spikes aligned to NaturalDatasetStimulus object.
+    '''
+    def __init__(self, spikes, duration):
+        '''
+        Spikes is ndarray of shape (ncells, nbins)
+
+        Duration is length of filter in frames. Should be same
+        as NaturalDatasetStimulus.duration.
+        '''
+        self.ncells = spikes.shape[0]
+        self.duration = duration
+        self.spikes = spikes[:,duration-1:]
+
+    def __getitem__(self, index):
+        '''
+        Returns np array of shape (index.shape[0],).
+        '''
+        return self.spikes[index]
+
+
 
