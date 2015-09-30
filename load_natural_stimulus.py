@@ -63,8 +63,10 @@ class NaturalScenesStimulus(object):
         Stimulus should be (num_frames, 3) where the three
         dimensions refer to image index, xstart, ystart.
         '''
-        self.images = images
-        self.stimulus = stimulus
+        # explicitly copy images and stimulus into memory since this will
+        # improve speed without using much space (~50 MB)
+        self.images = np.array(images).copy()
+        self.stimulus = np.array(stimulus).copy()
         self.ndims = 500
         self.shape = (stimulus.shape[0], self.ndims, self.ndims)
 
